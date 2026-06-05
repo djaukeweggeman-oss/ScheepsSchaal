@@ -353,18 +353,20 @@ function App() {
 
   return (
     <div className="app-container">
+      {/* SIDEBAR TOGGLE BUTTON */}
+      <button
+        className={`sidebar-toggle ${sidebarCollapsed ? 'collapsed' : ''}`}
+        onClick={() => setSidebarCollapsed(v => !v)}
+        title={sidebarCollapsed ? 'Zijpaneel openen' : 'Zijpaneel sluiten'}
+      >
+        {sidebarCollapsed 
+          ? (window.innerWidth <= 768 ? <Menu size={20} /> : <ChevronRight size={18} />) 
+          : (window.innerWidth <= 768 ? <X size={20} /> : <ChevronLeft size={18} />)
+        }
+      </button>
+
       {/* SIDEBAR */}
       <div className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <button
-          className="sidebar-toggle"
-          onClick={() => setSidebarCollapsed(v => !v)}
-          title={sidebarCollapsed ? 'Zijpaneel openen' : 'Zijpaneel sluiten'}
-        >
-          {sidebarCollapsed 
-            ? (window.innerWidth <= 768 ? <Menu size={20} /> : <ChevronRight size={18} />) 
-            : (window.innerWidth <= 768 ? <X size={20} /> : <ChevronLeft size={18} />)
-          }
-        </button>
 
         <div className="sidebar-inner">
           <div className="sidebar-header">

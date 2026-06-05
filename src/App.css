@@ -95,10 +95,10 @@ body {
 
 .sidebar-toggle {
   position: absolute;
-  right: -18px;
+  left: calc(var(--sidebar-width) - 18px);
   top: 50%;
   transform: translateY(-50%);
-  z-index: 1100;
+  z-index: 2100;
   width: 18px;
   height: 52px;
   background: var(--bg-sidebar);
@@ -110,12 +110,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0;
 }
 
-.sidebar.collapsed .sidebar-toggle {
-  right: -18px;
+.sidebar-toggle.collapsed {
+  left: 0px;
   border-left: 1px solid var(--border-cyan);
   border-radius: 6px;
 }
@@ -932,26 +932,32 @@ body {
     position: fixed;
     top: 16px;
     left: 16px;
-    right: auto;
     width: 44px;
     height: 44px;
     border-radius: 8px;
     background: var(--bg-sidebar);
     border: 1px solid var(--border-cyan);
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  }
-
-  .sidebar.collapsed .sidebar-toggle {
-    left: 16px;
-    border: 1px solid var(--border-cyan);
-    border-radius: 8px;
-  }
-
-  .sidebar:not(.collapsed) .sidebar-toggle {
-    left: 100%;
-    margin-left: 10px;
-    top: 16px;
     transform: none;
+    z-index: 2100;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar-toggle.collapsed {
+    left: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-cyan);
+  }
+
+  .sidebar-toggle:not(.collapsed) {
+    left: calc(85% + 10px); /* Sticks out of the opened sidebar */
+  }
+
+  @media (max-width: 400px) {
+    .sidebar-toggle:not(.collapsed) {
+      left: calc(85% - 50px); /* Keep inside screen on very narrow devices */
+      background: rgba(8, 13, 26, 0.95);
+    }
   }
 
   /* Right side active boats panel */
