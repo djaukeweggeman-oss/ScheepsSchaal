@@ -280,24 +280,65 @@ function App() {
         iconAnchor: [pixelWidth / 2, pixelLength / 2]
       });
 
-      // Use native Leaflet drag for cross-platform (touch+mouse) support
+      // Custom drag implementation explicitly handling both Touch and Mouse
       const marker = L.marker([activeBoat.lat, activeBoat.lng], {
         icon: boatIcon,
         zIndexOffset: isSelected ? 1000 : 0,
         interactive: true,
-        draggable: true
       }).addTo(map);
 
-      marker.on('dragstart', () => {
-        setActiveInstanceId(activeBoat.id);
-      });
+      let isDragging = false;
 
-      marker.on('drag', (e) => {
-        updateBoatPosition(activeBoat.id, e.target.getLatLng().lat, e.target.getLatLng().lng);
-      });
+      const handlePointerDown = (e: L.LeafletMouseEvent | any) => {
+        L.DomEvent.stopPropagation(e);
+        if (e.originalEvent && e.originalEvent.cancelable) {
+          e.originalEvent.preventDefault();
+        }
+        isDragging = false;
+        setActiveInstanceId(activeBoat.id);
+        
+        // Lock map panning while dragging boat
+        map.dragging.disable();
+
+        const boatId = activeBoat.id;
+
+        const onPointerMove = (me: any) => {
+          isDragging = true;
+          let latlng = me.latlng;
+          
+          if (!latlng && me.originalEvent && me.originalEvent.touches && me.originalEvent.touches.length > 0) {
+            const touch = me.originalEvent.touches[0];
+            latlng = map.containerPointToLatLng(L.point(touch.clientX, touch.clientY));
+          }
+
+          if (latlng) {
+            marker.setLatLng(latlng);
+            updateBoatPosition(boatId, latlng.lat, latlng.lng);
+          }
+        };
+
+        const onPointerUp = () => {
+          map.dragging.enable();
+          map.off('mousemove', onPointerMove);
+          map.off('mouseup', onPointerUp);
+          map.off('touchmove', onPointerMove);
+          map.off('touchend', onPointerUp);
+        };
+
+        map.on('mousemove', onPointerMove);
+        map.on('mouseup', onPointerUp);
+        map.on('touchmove', onPointerMove);
+        map.on('touchend', onPointerUp);
+      };
+
+      // Listen to both mouse and touch start events
+      marker.on('mousedown', handlePointerDown);
+      marker.on('touchstart', handlePointerDown);
 
       marker.on('click', () => {
-        setActiveInstanceId(activeBoat.id);
+        if (!isDragging) {
+          setActiveInstanceId(activeBoat.id);
+        }
       });
 
       marker.bindTooltip(`<b>${boatData.name}</b><br/>${boatData.length}m × ${boatData.width}m`, {
