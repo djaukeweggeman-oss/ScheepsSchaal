@@ -287,59 +287,72 @@ function App() {
         interactive: true,
       }).addTo(map);
 
-      let isDragging = false;
+      // Completely bypass Leaflet's event system for dragging to ensure 100% mobile touch reliability
+      setTimeout(() => {
+        const el = marker.getElement();
+        if (!el) return;
 
-      const handlePointerDown = (e: L.LeafletMouseEvent | any) => {
-        L.DomEvent.stopPropagation(e);
-        if (e.originalEvent && e.originalEvent.cancelable) {
-          e.originalEvent.preventDefault();
-        }
-        isDragging = false;
-        setActiveInstanceId(activeBoat.id);
-        
-        // Lock map panning while dragging boat
-        map.dragging.disable();
-
+        let isDragging = false;
         const boatId = activeBoat.id;
 
-        const onPointerMove = (me: any) => {
-          isDragging = true;
-          let latlng = me.latlng;
-          
-          if (!latlng && me.originalEvent && me.originalEvent.touches && me.originalEvent.touches.length > 0) {
-            const touch = me.originalEvent.touches[0];
-            latlng = map.containerPointToLatLng(L.point(touch.clientX, touch.clientY));
-          }
+        // --- TOUCH EVENTS (MOBILE) ---
+        const onTouchStart = (e: TouchEvent) => {
+          e.stopPropagation();
+          e.preventDefault(); // Stop scrolling/panning
+          isDragging = false;
+          setActiveInstanceId(boatId);
+          map.dragging.disable();
 
-          if (latlng) {
+          const onTouchMove = (me: TouchEvent) => {
+            isDragging = true;
+            const touch = me.touches[0];
+            const latlng = map.containerPointToLatLng(L.point(touch.clientX, touch.clientY));
             marker.setLatLng(latlng);
             updateBoatPosition(boatId, latlng.lat, latlng.lng);
-          }
+          };
+
+          const onTouchEnd = () => {
+            map.dragging.enable();
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', onTouchEnd);
+          };
+
+          document.addEventListener('touchmove', onTouchMove, { passive: false });
+          document.addEventListener('touchend', onTouchEnd);
         };
 
-        const onPointerUp = () => {
-          map.dragging.enable();
-          map.off('mousemove', onPointerMove);
-          map.off('mouseup', onPointerUp);
-          map.off('touchmove', onPointerMove);
-          map.off('touchend', onPointerUp);
+        // --- MOUSE EVENTS (DESKTOP) ---
+        const onMouseDown = (e: MouseEvent) => {
+          if (e.button !== 0) return; // Only left click
+          e.stopPropagation();
+          e.preventDefault();
+          isDragging = false;
+          setActiveInstanceId(boatId);
+          map.dragging.disable();
+
+          const onMouseMove = (me: MouseEvent) => {
+            isDragging = true;
+            const latlng = map.containerPointToLatLng(L.point(me.clientX, me.clientY));
+            marker.setLatLng(latlng);
+            updateBoatPosition(boatId, latlng.lat, latlng.lng);
+          };
+
+          const onMouseUp = () => {
+            map.dragging.enable();
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+          };
+
+          document.addEventListener('mousemove', onMouseMove);
+          document.addEventListener('mouseup', onMouseUp);
         };
 
-        map.on('mousemove', onPointerMove);
-        map.on('mouseup', onPointerUp);
-        map.on('touchmove', onPointerMove);
-        map.on('touchend', onPointerUp);
-      };
-
-      // Listen to both mouse and touch start events
-      marker.on('mousedown', handlePointerDown);
-      marker.on('touchstart', handlePointerDown);
-
-      marker.on('click', () => {
-        if (!isDragging) {
-          setActiveInstanceId(activeBoat.id);
-        }
-      });
+        el.addEventListener('touchstart', onTouchStart, { passive: false });
+        el.addEventListener('mousedown', onMouseDown);
+        el.addEventListener('click', () => {
+          if (!isDragging) setActiveInstanceId(boatId);
+        });
+      }, 0);
 
       marker.bindTooltip(`<b>${boatData.name}</b><br/>${boatData.length}m × ${boatData.width}m`, {
         permanent: false,
