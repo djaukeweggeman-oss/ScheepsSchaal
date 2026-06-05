@@ -39,7 +39,7 @@ function App() {
   const [mapType, setMapType] = useState<'streets' | 'satellite'>('satellite');
   const [categoryTab, setCategoryTab] = useState<'all' | 'klein' | 'middel' | 'groot' | 'extreem' | 'referentie'>('all');
   const [zoom, setZoom] = useState<number>(locations[0].defaultZoom);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);

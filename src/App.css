@@ -896,5 +896,112 @@ body {
    ========================================================= */
 @media (max-width: 900px) {
   :root { --sidebar-width: 280px; }
-  .active-boats-panel { width: 250px; }
+  .active-boats-panel { width: 250px; right: 64px; }
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 85% !important;
+    max-width: 320px;
+    z-index: 2000;
+    transform: translateX(0);
+    box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar.collapsed {
+    transform: translateX(-100%);
+    width: 85% !important;
+    box-shadow: none;
+  }
+
+  .sidebar-inner {
+    width: 100%;
+  }
+
+  /* Hamburger/Toggle button on mobile */
+  .sidebar-toggle {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    right: auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: var(--bg-sidebar);
+    border: 1px solid var(--border-cyan);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+
+  .sidebar.collapsed .sidebar-toggle {
+    left: 16px;
+    border: 1px solid var(--border-cyan);
+    border-radius: 8px;
+  }
+
+  .sidebar:not(.collapsed) .sidebar-toggle {
+    left: 100%;
+    margin-left: 10px;
+    top: 16px;
+    transform: none;
+  }
+
+  /* Right side active boats panel */
+  .active-boats-panel {
+    top: 68px; /* below map buttons */
+    right: 12px;
+    width: calc(100vw - 24px);
+    max-width: 300px;
+    max-height: 40vh;
+  }
+
+  /* Map controls top right */
+  .map-overlay-top-right {
+    top: 16px;
+    right: 12px;
+    flex-direction: row;
+  }
+
+  /* Bottom comparison bar */
+  .bottom-comparison-container {
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    padding: 10px;
+  }
+  
+  .comparison-svg-wrapper {
+    height: 40px;
+  }
+  
+  .comparison-ship-card {
+    min-width: 45px;
+    padding: 5px;
+  }
+
+  .comparison-facts {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  /* Empty state */
+  .map-empty-state {
+    width: calc(100% - 32px);
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .active-boats-panel {
+    top: 68px;
+    right: 12px;
+  }
 }
