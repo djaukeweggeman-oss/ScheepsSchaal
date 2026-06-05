@@ -239,13 +239,15 @@ function App() {
       : '';
 
     return `
-      <div style="width:${pixelWidth}px;height:${pixelLength}px;transform:rotate(${rotation}deg);transform-origin:center center;position:relative;">
-        ${isSelected ? `<div style="position:absolute;inset:-5px;border:2px dashed ${selStroke};border-radius:4px;pointer-events:none;opacity:0.8;box-sizing:border-box;"></div>` : ''}
+      <div style="width:${pixelWidth}px;height:${pixelLength}px;transform:rotate(${rotation}deg);transform-origin:center center;position:relative;touch-action:none;">
         <svg width="${pixelWidth}" height="${pixelLength}" viewBox="0 0 100 300" preserveAspectRatio="none"
              style="display:block;overflow:visible;pointer-events:none;filter:${glow};" xmlns="http://www.w3.org/2000/svg">
           ${svgBody}
           ${selHighlight}
         </svg>
+        <!-- Invisible overlay to catch all click/touch events perfectly for Leaflet -->
+        <div style="position:absolute;inset:0;z-index:10;touch-action:none;"></div>
+        ${isSelected ? `<div style="position:absolute;inset:-5px;border:2px dashed ${selStroke};border-radius:4px;pointer-events:none;opacity:0.8;box-sizing:border-box;z-index:11;"></div>` : ''}
       </div>
     `;
   };
