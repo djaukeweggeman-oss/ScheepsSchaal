@@ -17,7 +17,8 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
-  Satellite
+  Satellite,
+  Menu
 } from 'lucide-react';
 import { boats, type Boat } from './data/boats';
 import { locations, type WaterLocation } from './data/locations';
@@ -85,6 +86,11 @@ function App() {
     const boatData = boats.find(b => b.id === boatId);
     if (boatData && (boatData.category === 'extreem' || boatData.length > 250)) {
       triggerConfetti();
+    }
+    
+    // Auto-close sidebar on mobile after adding a boat to show the map
+    if (window.innerWidth <= 768) {
+      setSidebarCollapsed(true);
     }
   }, [map]);
 
@@ -173,6 +179,10 @@ function App() {
     setSelectedLocation(newLoc);
     setShowSearchDropdown(false);
     setSearchQuery('');
+    
+    if (window.innerWidth <= 768) {
+      setSidebarCollapsed(true);
+    }
   };
 
   // Initialize map
@@ -350,7 +360,10 @@ function App() {
           onClick={() => setSidebarCollapsed(v => !v)}
           title={sidebarCollapsed ? 'Zijpaneel openen' : 'Zijpaneel sluiten'}
         >
-          {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          {sidebarCollapsed 
+            ? (window.innerWidth <= 768 ? <Menu size={20} /> : <ChevronRight size={18} />) 
+            : (window.innerWidth <= 768 ? <X size={20} /> : <ChevronLeft size={18} />)
+          }
         </button>
 
         <div className="sidebar-inner">
@@ -637,7 +650,11 @@ function App() {
           <div className="map-empty-state">
             <div className="map-empty-icon">⚓</div>
             <div className="map-empty-title">Nog geen boten op de kaart</div>
-            <div className="map-empty-sub">Kies een boot uit de bibliotheek links en klik op <b>+</b> om te beginnen</div>
+            <div className="map-empty-sub">
+              {window.innerWidth <= 768 
+                ? 'Open het menu linksboven om een boot toe te voegen' 
+                : 'Kies een boot uit de bibliotheek links en klik op + om te beginnen'}
+            </div>
           </div>
         )}
       </div>
