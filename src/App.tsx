@@ -278,40 +278,24 @@ function App() {
         iconAnchor: [pixelWidth / 2, pixelLength / 2]
       });
 
-      // No draggable:true — we implement drag via map-level events so SVG doesn't intercept
+      // Use native Leaflet drag for cross-platform (touch+mouse) support
       const marker = L.marker([activeBoat.lat, activeBoat.lng], {
         icon: boatIcon,
         zIndexOffset: isSelected ? 1000 : 0,
         interactive: true,
+        draggable: true
       }).addTo(map);
 
-      let isDragging = false;
-
-      marker.on('mousedown', (e: L.LeafletMouseEvent) => {
-        if (e.originalEvent.button !== 0) return;
-        L.DomEvent.stopPropagation(e);
-        e.originalEvent.preventDefault();
-        isDragging = false;
+      marker.on('dragstart', () => {
         setActiveInstanceId(activeBoat.id);
-        map.dragging.disable();
+      });
 
-        const boatId = activeBoat.id;
-        const onMove = (me: L.LeafletMouseEvent) => {
-          isDragging = true;
-          marker.setLatLng(me.latlng);
-          updateBoatPosition(boatId, me.latlng.lat, me.latlng.lng);
-        };
-        const onUp = () => {
-          map.dragging.enable();
-          map.off('mousemove', onMove);
-          map.off('mouseup', onUp);
-        };
-        map.on('mousemove', onMove);
-        map.on('mouseup', onUp);
+      marker.on('drag', (e) => {
+        updateBoatPosition(activeBoat.id, e.target.getLatLng().lat, e.target.getLatLng().lng);
       });
 
       marker.on('click', () => {
-        if (!isDragging) setActiveInstanceId(activeBoat.id);
+        setActiveInstanceId(activeBoat.id);
       });
 
       marker.bindTooltip(`<b>${boatData.name}</b><br/>${boatData.length}m × ${boatData.width}m`, {
