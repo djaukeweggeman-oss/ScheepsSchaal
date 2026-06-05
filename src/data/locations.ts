@@ -12,6 +12,17 @@ export interface WaterLocation {
 
 export const locations: WaterLocation[] = [
   {
+    id: 'giesbeek_rhederlaag',
+    name: 'Giesbeek (Rhederlaag)',
+    type: 'plas',
+    country: 'Nederland',
+    lat: 51.9969828,
+    lng: 6.0703053,
+    defaultZoom: 15,
+    description: 'Het recreatiegebied Rhederlaag bij Giesbeek, een uitgestrekt watersportgebied aan de IJssel.',
+    facts: 'Rhederlaag is populair voor zeilboten en kleine pleziervaart. Probeer eens een gigantische tanker op deze plassen te leggen om te zien hoe bizar groot ze in werkelijkheid zijn!'
+  },
+  {
     id: 'amsterdam_gracht',
     name: 'Prinsengracht (Amsterdam)',
     type: 'gracht',
